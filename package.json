@@ -1,0 +1,8 @@
+{
+  "name": "yao-mountain",
+  "version": "1.0.0",
+  "description": "瑶山仪式音频播放网站",
+  "scripts": {
+    "start": "python -m http.server 8080"
+  }
+}
