@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>瑶山仪式 - Yao Mountain Ritual</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --card-bg: rgba(20, 20, 35, 0.85);
+            --gold: #c9a96e;
+            --gold-light: #e0c78a;
+            --text: #e8e0d4;
+            --text-muted: #9a8c78;
+            --accent: #6b8e6b;
+            --border: rgba(201, 169, 110, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 水墨山水背景 */
+        .bg-mountains {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            animation: bgFadeIn 2s ease-out 0.5s forwards;
+        }
+
+        @keyframes bgFadeIn {
+            to { opacity: 1; }
+        }
+
+        .bg-mountains svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        /* 飘浮粒子 */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: floatUp 8s ease-in infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+            90% { opacity: 0.1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 10s; }
+        .particle:nth-child(2) { left: 25%; animation-delay: 2s; animation-duration: 8s; }
+        .particle:nth-child(3) { left: 40%; animation-delay: 4s; animation-duration: 12s; }
+        .particle:nth-child(4) { left: 55%; animation-delay: 1s; animation-duration: 9s; }
+        .particle:nth-child(5) { left: 70%; animation-delay: 3s; animation-duration: 11s; }
+        .particle:nth-child(6) { left: 85%; animation-delay: 5s; animation-duration: 7s; }
+        .particle:nth-child(7) { left: 15%; animation-delay: 6s; animation-duration: 13s; }
+        .particle:nth-child(8) { left: 60%; animation-delay: 7s; animation-duration: 10s; }
+
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            padding: 24px 20px;
+        }
+
+        /* 卡片 */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 36px 28px 32px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(201,169,110,0.05);
+            animation: cardIn 0.8s ease-out both;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 标题区 */
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--gold);
+            margin-bottom: 4px;
+            text-shadow: 0 0 30px rgba(201, 169, 110, 0.3);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+        }
+
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 0 auto 24px;
+        }
+
+        /* 音频播放器 */
+        .player-section {
+            margin-bottom: 28px;
+        }
+
+        .audio-player {
+            width: 100%;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            outline: none;
+        }
+
+        /* 自定义音频播放器样式 */
+        .audio-player audio::-webkit-media-controls-panel {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+
+        .audio-player audio::-webkit-media-controls-play-button {
+            filter: invert(85%) sepia(20%) saturate(500%) hue-rotate(350deg);
+        }
+
+        .audio-player audio::-webkit-media-controls-current-time-display,
+        .audio-player audio::-webkit-media-controls-time-remaining-display {
+            color: var(--text-muted);
+            font-family: inherit;
+        }
+
+        /* 自定义播放按钮（浏览器默认外的增强） */
+        .play-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .wave-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 20px;
+        }
+
+        .wave-bar {
+            width: 3px;
+            background: var(--gold);
+            border-radius: 2px;
+            animation: wave 1.2s ease-in-out infinite;
+            opacity: 0.5;
+        }
+        .wave-bar:nth-child(1) { height: 10px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 8px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 20px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 12px; animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { height: 18px; animation-delay: 0.5s; }
+        .wave-bar:nth-child(7) { height: 10px; animation-delay: 0.6s; }
+        .wave-bar:nth-child(8) { height: 14px; animation-delay: 0.7s; }
+        .wave-bar:nth-child(9) { height: 8px; animation-delay: 0.8s; }
+        .wave-bar:nth-child(10) { height: 16px; animation-delay: 0.9s; }
+        .wave-bar:nth-child(11) { height: 12px; animation-delay: 1.0s; }
+        .wave-bar:nth-child(12) { height: 18px; animation-delay: 1.1s; }
+
+        @keyframes wave {
+            0%, 100% { opacity: 0.3; transform: scaleY(0.6); }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
+        .play-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        /* 二维码区域 */
+        .qr-section {
+            margin-top: 4px;
+        }
+
+        .qr-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .qr-wrapper {
+            display: inline-block;
+            background: #fff;
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .qr-wrapper:hover {
+            transform: scale(1.03);
+        }
+
+        .qr-wrapper canvas,
+        .qr-wrapper img {
+            display: block;
+            border-radius: 8px;
+        }
+
+        .qr-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            letter-spacing: 1px;
+        }
+
+        .qr-hint .icon {
+            display: inline-block;
+            margin: 0 2px;
+        }
+
+        /* URL 显示 */
+        .url-display {
+            margin-top: 16px;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 12px;
+            color: var(--gold-light);
+            word-break: break-all;
+            letter-spacing: 0.5px;
+            font-family: "SF Mono", "Menlo", "Consolas", monospace;
+        }
+
+        /* 页脚 */
+        .footer {
+            margin-top: 24px;
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 400px) {
+            .card {
+                padding: 28px 18px 24px;
+                border-radius: 20px;
+            }
+            .title {
+                font-size: 24px;
+                letter-spacing: 3px;
+            }
+            .subtitle {
+                font-size: 12px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 水墨山水背景 SVG -->
+    <div class="bg-mountains">
+        <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#060612"/>
+                    <stop offset="60%" stop-color="#0d0d1a"/>
+                    <stop offset="100%" stop-color="#12121e"/>
+                </linearGradient>
+                <linearGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="rgba(230,210,170,0.15)"/>
+                    <stop offset="100%" stop-color="rgba(230,210,170,0)"/>
+                </linearGradient>
+            </defs>
+            <!-- 天空 -->
+            <rect width="1440" height="900" fill="url(#skyGrad)"/>
+            <!-- 月亮光晕 -->
+            <circle cx="380" cy="200" r="180" fill="url(#moonGlow)"/>
+            <circle cx="380" cy="200" r="50" fill="rgba(230,210,170,0.6)"/>
+            <circle cx="380" cy="200" r="45" fill="rgba(240,225,200,0.8)"/>
+            <!-- 远山 - Layer 4 (最远) -->
+            <path d="M0 650 Q200 420 450 500 Q650 420 800 480 Q1000 400 1200 460 Q1350 440 1440 420 L1440 900 L0 900Z" fill="rgba(60,70,90,0.25)"/>
+            <!-- 远山 - Layer 3 -->
+            <path d="M0 700 Q150 520 350 560 Q500 490 650 540 Q800 470 950 520 Q1100 480 1250 510 Q1380 490 1440 500 L1440 900 L0 900Z" fill="rgba(45,55,72,0.35)"/>
+            <!-- 远山 - Layer 2 -->
+            <path d="M0 740 Q180 580 400 620 Q580 550 750 600 Q900 540 1050 590 Q1180 560 1300 580 Q1400 570 1440 590 L1440 900 L0 900Z" fill="rgba(30,38,50,0.45)"/>
+            <!-- 近山 - Layer 1 -->
+            <path d="M0 800 Q120 680 280 720 Q450 640 600 700 Q750 650 900 710 Q1050 670 1200 700 Q1340 680 1440 720 L1440 900 L0 900Z" fill="rgba(20,26,36,0.6)"/>
+            <!-- 松树剪影 -->
+            <g transform="translate(1200, 620) scale(0.8)" opacity="0.3">
+                <ellipse cx="0" cy="0" rx="8" ry="40" fill="#1a1a1a"/>
+                <ellipse cx="-20" cy="-15" rx="25" ry="35" fill="#141414" transform="rotate(-15)"/>
+                <ellipse cx="20" cy="-25" rx="20" ry="30" fill="#181818" transform="rotate(10)"/>
+                <ellipse cx="0" cy="-40" rx="22" ry="32" fill="#1a1a1a"/>
+            </g>
+            <g transform="translate(130, 640) scale(1)" opacity="0.25">
+                <ellipse cx="0" cy="0" rx="10" ry="50" fill="#1a1a1a"/>
+                <ellipse cx="-25" cy="-20" rx="30" ry="40" fill="#141414" transform="rotate(-12)"/>
+                <ellipse cx="25" cy="-30" rx="25" ry="45" fill="#1a1a1a" transform="rotate(12)"/>
+                <ellipse cx="0" cy="-50" rx="28" ry="38" fill="#181818"/>
+                <ellipse cx="0" cy="-75" rx="18" ry="30" fill="#141414"/>
+            </g>
+            <!-- 云雾 -->
+            <ellipse cx="500" cy="560" rx="300" ry="20" fill="rgba(180,190,200,0.06)"/>
+            <ellipse cx="900" cy="620" rx="250" ry="15" fill="rgba(180,190,200,0.05)"/>
+            <ellipse cx="300" cy="680" rx="200" ry="12" fill="rgba(180,190,200,0.04)"/>
+            <!-- 星星 -->
+            <circle cx="200" cy="100" r="1.5" fill="rgba(255,255,255,0.6)"/>
+            <circle cx="600" cy="80" r="1" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="900" cy="130" r="1.5" fill="rgba(255,255,255,0.4)"/>
+            <circle cx="1100" cy="90" r="1" fill="rgba(255,255,255,0.6)"/>
+            <circle cx="1300" cy="150" r="1.5" fill="rgba(255,255,255,0.3)"/>
+            <circle cx="750" cy="110" r="1" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="450" cy="140" r="1" fill="rgba(255,255,255,0.4)"/>
+            <circle cx="100" cy="170" r="1.5" fill="rgba(255,255,255,0.5)"/>
+            <circle cx="1050" cy="60" r="1" fill="rgba(255,255,255,0.4)"/>
+        </svg>
+    </div>
+
+    <!-- 粒子 -->
+    <div class="particles">
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-container">
+        <div class="card">
+            <div class="header-icon">⛰️</div>
+            <h1 class="title">瑶山仪式</h1>
+            <p class="subtitle">Yao Mountain Ritual</p>
+            <div class="divider"></div>
+
+            <!-- 音频播放器 -->
+            <div class="player-section">
+                <div class="audio-player">
+                    <audio id="audio" controls preload="metadata" controlsList="nodownload noplaybackrate">
+                        <source src="audio.mp3" type="audio/mpeg">
+                        您的浏览器不支持音频播放
+                    </audio>
+                </div>
+                <div class="play-indicator">
+                    <div class="wave-bars" id="waveBars">
+                        <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                        <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                        <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                        <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                    </div>
+                    <span class="play-hint">点击播放</span>
+                </div>
+            </div>
+
+            <!-- 二维码 -->
+            <div class="qr-section">
+                <p class="qr-label">📱 微信扫码访问</p>
+                <div class="qr-wrapper">
+                    <div id="qrcode"></div>
+                </div>
+                <p class="qr-hint">
+                    <span class="icon">📷</span> 打开微信扫一扫 <span class="icon">→</span> 进入页面
+                </p>
+            </div>
+
+            <!-- URL 显示 -->
+            <div class="url-display" id="urlDisplay">正在生成链接...</div>
+
+            <div class="footer">
+                分享给朋友，一起聆听瑶山之声
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // 获取当前页面完整URL作为二维码内容
+            const url = window.location.href;
+            const urlDisplay = document.getElementById('urlDisplay');
+            urlDisplay.textContent = url;
+
+            // 生成二维码
+            const qrContainer = document.getElementById('qrcode');
+            const qrSize = Math.min(200, window.innerWidth - 120);
+
+            try {
+                new QRCode(qrContainer, {
+                    text: url,
+                    width: qrSize,
+                    height: qrSize,
+                    colorDark: '#1a1a2e',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch(e) {
+                // QRCode库加载失败时显示备用链接
+                qrContainer.innerHTML = '<p style="color:#333;padding:20px;">二维码加载中...</p>';
+            }
+
+            // 音频播放时控制波形动画
+            const audio = document.getElementById('audio');
+            const waveBars = document.getElementById('waveBars');
+
+            audio.addEventListener('play', function() {
+                waveBars.style.opacity = '1';
+                document.querySelector('.play-hint').textContent = '正在播放...';
+            });
+
+            audio.addEventListener('pause', function() {
+                waveBars.style.opacity = '0.5';
+                document.querySelector('.play-hint').textContent = '已暂停';
+            });
+
+            audio.addEventListener('ended', function() {
+                waveBars.style.opacity = '0.3';
+                document.querySelector('.play-hint').textContent = '播放完毕';
+            });
+
+            // 监听微信环境，优化体验
+            const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+            if (isWechat) {
+                document.querySelector('.qr-section').style.display = 'none';
+                document.querySelector('.url-display').style.display = 'none';
+                // 微信中直接显示播放器即可
+                const footer = document.querySelector('.footer');
+                footer.textContent = '在瑶山的声音中，感受自然的回响';
+            }
+
+            // 窗口大小变化时重新生成二维码
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    const newSize = Math.min(200, window.innerWidth - 120);
+                    qrContainer.innerHTML = '';
+                    try {
+                        new QRCode(qrContainer, {
+                            text: url,
+                            width: newSize,
+                            height: newSize,
+                            colorDark: '#1a1a2e',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.M
+                        });
+                    } catch(e) {}
+                }, 300);
+            });
+        })();
+    </script>
+</body>
+</html>
